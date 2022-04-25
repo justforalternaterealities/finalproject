@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
@@ -10,23 +11,24 @@ public class XRSceneTransitionManager : MonoBehaviour
 
     public Material transitionMaterial;
     public float transitionSpeed = 1.0f;
+
     public string initialScene;
+
     public bool isLoading { get; private set; } = false;
 
     Scene xrScene;
     Scene currentScene;
-    float currentFade = 0.0f;
+
+    float currentTransitionAmount = 0.0f;
 
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
-        }
-        else
+        } else
         {
-            Debug.LogWarning("Detected that singleton SceneTransitionManager has already been created. Deleting this instance.");
-            //there can be only one!
+            Debug.LogWarning("Detected rogue XRSceneTransitionManager. Deleting it.");
             Destroy(this.gameObject);
             return;
         }
@@ -34,9 +36,17 @@ public class XRSceneTransitionManager : MonoBehaviour
         xrScene = SceneManager.GetActiveScene();
         SceneManager.sceneLoaded += OnNewSceneAdded;
 
-        if(!Application.isEditor)
+        if (!Application.isEditor)
         {
             TransitionTo(initialScene);
+        }
+    }
+
+    public void TransitionTo(string scene)
+    {
+        if (!isLoading)
+        {
+            StartCoroutine(Load(scene));
         }
     }
 
@@ -44,46 +54,44 @@ public class XRSceneTransitionManager : MonoBehaviour
     {
         if (newScene != xrScene)
         {
-            SceneManager.SetActiveScene(newScene);
             currentScene = newScene;
+            SceneManager.SetActiveScene(currentScene);
             PlaceXRRig(xrScene, currentScene);
         }
     }
 
-    public void TransitionTo(string scene)
-    {
-        if(!isLoading)
-        {
-            StartCoroutine(Load(scene));
-        }
-    }
 
     IEnumerator Load(string scene)
     {
         isLoading = true;
         yield return StartCoroutine(Fade(1.0f));
-        yield return StartCoroutine(UnloadCurrent());
+        yield return StartCoroutine(UnloadCurrentScene());
 
         yield return StartCoroutine(LoadNewScene(scene));
         yield return StartCoroutine(Fade(0.0f));
+
         isLoading = false;
     }
 
-    IEnumerator UnloadCurrent()
+    IEnumerator UnloadCurrentScene()
     {
         AsyncOperation unload = SceneManager.UnloadSceneAsync(currentScene);
-        while(!unload.isDone) 
+        while (!unload.isDone)
+        {
             yield return null;
+        }
     }
 
-    IEnumerator LoadNewScene(string name)
+    IEnumerator LoadNewScene(string scene)
     {
-        AsyncOperation load = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
+        AsyncOperation load = SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
         while (!load.isDone)
+        {
             yield return null;
+        }
     }
 
-    public static void PlaceXRRig(Scene xrScene, Scene newScene)
+    static public void PlaceXRRig(Scene xrScene, Scene newScene)
     {
         GameObject[] xrObjects = xrScene.GetRootGameObjects();
         GameObject[] newSceneObjects = newScene.GetRootGameObjects();
@@ -95,18 +103,19 @@ public class XRSceneTransitionManager : MonoBehaviour
         {
             xrRig.transform.position = xrRigOrigin.transform.position;
             xrRig.transform.rotation = xrRigOrigin.transform.rotation;
+
         }
     }
 
-    IEnumerator Fade(float dst)
+    IEnumerator Fade(float target)
     {
-        while(!Mathf.Approximately(currentFade, dst))
+        while (!Mathf.Approximately(currentTransitionAmount, target))
         {
-            currentFade = Mathf.MoveTowards(currentFade, dst, transitionSpeed * Time.deltaTime);
-            transitionMaterial.SetFloat("_FadeAmount", currentFade);
+            currentTransitionAmount = Mathf.MoveTowards(currentTransitionAmount, target, transitionSpeed * Time.deltaTime);
+            transitionMaterial.SetFloat("_FadeAmount", currentTransitionAmount);
+
             yield return null;
         }
-        transitionMaterial.SetFloat("_FadeAmount", dst);
+        transitionMaterial.SetFloat("_FadeAmount", target);
     }
-
 }
