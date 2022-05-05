@@ -6,6 +6,7 @@ TagManager:
   tags:
   - XRRigOrigin
   - XRRig
+  - Phone
   layers:
   - Default
   - TransparentFX
@@ -14,8 +15,8 @@ TagManager:
   - Water
   - UI
   - XR Raycast
-  - 
-  - 
+  - Phone
+  - PapersTask
   - 
   - 
   - 

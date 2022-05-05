@@ -27,6 +27,18 @@ public static class SceneSelector
         Load("RedPlace");
     }
 
+    [MenuItem("Scenes/OwnRoom")]
+    static void OpenOwnRoom()
+    {
+        Load("OwnRoom");
+    }
+
+    [MenuItem("Scenes/Police Station")]
+    static void OpenPolice()
+    {
+        Load("Area 1");
+    }
+
 
     static void Load(string scene)
     {
