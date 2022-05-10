@@ -9,6 +9,7 @@ public class LightButton : MonoBehaviour
     public GameObject phone;
 
     public float delay = 4;
+    public bool lightOn = false;
 
     void Start()
     {
@@ -22,7 +23,8 @@ public class LightButton : MonoBehaviour
 
     public void TurnLightOn()
     {
-        light.SetActive(true);
+        lightOn = !lightOn;
+        light.SetActive(lightOn);
         light.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
         if (phone != null && SceneManager.GetActiveScene().name == "OwnRoom")
         {

@@ -9,34 +9,22 @@ using System.Linq;
 public static class SceneSelector
 {
 
-    [MenuItem("Scenes/Lobby")]
+    [MenuItem("Scenes/Safal Lobby")]
     static void OpenLobby()
     {
         Load("Lobby");
     }
 
-    [MenuItem("Scenes/Green Place")]
-    static void OpenGreenPlace()
-    {
-        Load("GreenPlace");
-    }
-
-    [MenuItem("Scenes/Red Place")]
-    static void OpenRedPlace()
-    {
-        Load("RedPlace");
-    }
-
-    [MenuItem("Scenes/OwnRoom")]
+    [MenuItem("Scenes/Priyam OwnRoom")]
     static void OpenOwnRoom()
     {
         Load("OwnRoom");
     }
 
-    [MenuItem("Scenes/Police Station")]
+    [MenuItem("Scenes/Shyngys Police Station")]
     static void OpenPolice()
     {
-        Load("Area 1");
+        Load("Working");
     }
 
 
